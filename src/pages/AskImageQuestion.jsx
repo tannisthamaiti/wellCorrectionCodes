@@ -32,7 +32,7 @@ const AskImageQuestion = () => {
     setAnswer('');
 
     try {
-      const response = await fetch('http://5.178.113.239:3000/predict_permeability', {
+      const response = await fetch('https://c465-5-178-113-239.ngrok-free.app/predict_permeability', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
