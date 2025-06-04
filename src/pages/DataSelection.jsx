@@ -27,7 +27,7 @@ export default function DataSelection() {
     formData.append("file_type", fileType);
 
     try {
-      const res = await fetch("http://localhost:8000/upload", {
+      const res = await fetch("https://c465-5-178-113-239.ngrok-free.app/upload", {
         method: "POST",
         body: formData,
       });
