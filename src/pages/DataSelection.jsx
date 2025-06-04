@@ -48,7 +48,7 @@ export default function DataSelection() {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const res = await fetch("http://localhost:8000/files");
+        const res = await fetch("https://c465-5-178-113-239.ngrok-free.app/files");
         const data = await res.json();
         setUploadedFiles(data);
       } catch (err) {
