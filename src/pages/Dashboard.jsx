@@ -77,13 +77,13 @@ export default function Dashboard() {
     } else {
       setPipelineLogs(prev => [
         ...prev,
-        formatTimestamped(`❌ API responded with status: ${data.status}`),
+        formatTimestamped(`API responded with status: ${data.status}`),
       ]);
     }
   } catch (error) {
     setPipelineLogs(prev => [
       ...prev,
-      formatTimestamped(`❌ API request failed: ${error.message}`),
+      formatTimestamped(`API request failed: ${error.message}`),
     ]);
   }
 };
