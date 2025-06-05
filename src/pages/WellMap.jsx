@@ -47,7 +47,7 @@ export default function WellMap() {
       {/* Plotly Map */}
       <iframe
         ref={iframeRef}
-        src="http://165.22.228.32:8000/output/plot.html"
+        src="https://etscan.org/output/plot.html"
         style={{ width: '70%', height: '100%', border: 'none' }}
         title="Well Map"
       />

@@ -11,7 +11,7 @@ import VendorMap from './pages/VendorMap';
 import DigitalTwin from './pages/DigitalTwin';
 import ClassificationAgent from './pages/ClassificationAgent';
 import AskImageQuestion from './pages/AskImageQuestion';
-import ProcessingSteps from './pages/ProcessingSteps';
+
 import './index.css';
 import './App.css';
 import Dashboard from './pages/Dashboard';
@@ -39,7 +39,6 @@ function App() {
             <Route path="/vendor" element={<VendorMap />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/well-map" element={<WellMap />} />
-            <Route path="/processing-steps" element={<ProcessingSteps />} />
             <Route path="/classification-agent" element={<ClassificationAgent />} />
             <Route path="/ask-image" element={<AskImageQuestion />} />  {/* ✅ new route */}
             <Route path="/digital-twin" element={<DigitalTwin />} />
