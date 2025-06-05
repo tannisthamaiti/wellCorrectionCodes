@@ -46,15 +46,47 @@ export default function Dashboard() {
     }
   };
 
-  const handleROICalculate = () => {
-    setShowProcessing(true);
-    setPipelineLogs([
-      formatTimestamped('Files uploaded to folder.'),
-      formatTimestamped('Ingestion Agent triggered.'),
-      formatTimestamped('Extracting Formation Tops...'),
-      formatTimestamped("❌ API request failed: Unexpected token '<', <!DOCTYPE ... is not valid JSON")
+  const handleROICalculate = async () => {
+  setShowProcessing(true);
+  setPipelineLogs([
+    formatTimestamped('Files uploaded to folder.'),
+    formatTimestamped('Ingestion Agent triggered.'),
+    formatTimestamped('Extracting Formation Tops...'),
+  ]);
+
+  try {
+    const response = await fetch('https://c465-5-178-113-239.ngrok-free.app/merge-well-formation', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      setPipelineLogs(prev => [
+        ...prev,
+        formatTimestamped(`✅ Formation Tops extracted. Rows: ${data.rows}`),
+        formatTimestamped(`📁 Output File: ${data.output}`),
+      ]);
+    } else {
+      setPipelineLogs(prev => [
+        ...prev,
+        formatTimestamped(`❌ API responded with status: ${data.status}`),
+      ]);
+    }
+  } catch (error) {
+    setPipelineLogs(prev => [
+      ...prev,
+      formatTimestamped(`❌ API request failed: ${error.message}`),
     ]);
-  };
+  }
+};
 
   const handleProcessingComplete = (finalData) => {
     setProcessingResult(finalData);
