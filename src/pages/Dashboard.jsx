@@ -2,12 +2,18 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import ProcessingSteps from './ProcessingSteps';
 
+function formatTimestamped(message) {
+  const now = new Date();
+  return `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${message}`;
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [chatHistory, setChatHistory] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [showProcessing, setShowProcessing] = useState(false);
   const [processingResult, setProcessingResult] = useState(null);
+  const [pipelineLogs, setPipelineLogs] = useState([]);
   const chatLogRef = useRef(null);
 
   const handleShowMap = () => navigate("/well-map");
@@ -42,6 +48,12 @@ export default function Dashboard() {
 
   const handleROICalculate = () => {
     setShowProcessing(true);
+    setPipelineLogs([
+      formatTimestamped('📂 Files uploaded to folder.'),
+      formatTimestamped('🔔 Ingestion Agent triggered.'),
+      formatTimestamped('🧠 Extracting Formation Tops...'),
+      formatTimestamped("❌ API request failed: Unexpected token '<', <!DOCTYPE ... is not valid JSON")
+    ]);
   };
 
   const handleProcessingComplete = (finalData) => {
@@ -77,6 +89,15 @@ export default function Dashboard() {
             {showProcessing && (
               <div>
                 <ProcessingSteps files={[]} onComplete={handleProcessingComplete} />
+              </div>
+            )}
+
+            {pipelineLogs.length > 0 && (
+              <div style={{ marginTop: '1rem', backgroundColor: '#f9f9f9', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd' }}>
+                <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Pipeline Status</div>
+                {pipelineLogs.map((log, idx) => (
+                  <div key={idx}>{log}</div>
+                ))}
               </div>
             )}
 
