@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import ProcessingSteps from './ProcessingSteps';
+
 
 function formatTimestamped(message) {
   const now = new Date();
