@@ -21,7 +21,7 @@ export default function ProcessingSteps({ files, onComplete }) {
       await delay(1000);
 
       try {
-        const response = await fetch('http://5.178.113.239:3000/merge-well-formation');
+        const response = await fetch('https://c465-5-178-113-239.ngrok-free.app/merge-well-formation');
         const result = await response.json();
         if (response.ok) {
           logStep(`✅ Formation data extracted: ${result.rows} rows saved.`);
