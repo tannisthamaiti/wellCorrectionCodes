@@ -27,7 +27,7 @@ export default function DataSelection() {
     formData.append("file_type", fileType);
 
     try {
-      const res = await fetch("https://c465-5-178-113-239.ngrok-free.app/upload", {
+      const res = await fetch("https://etscan.org/upload", {
         method: "POST",
         body: formData,
       });
@@ -48,7 +48,7 @@ export default function DataSelection() {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const res = await fetch("https://c465-5-178-113-239.ngrok-free.app/files");
+        const res = await fetch("https://etscan.org/files");
         const data = await res.json();
         setUploadedFiles(data);
       } catch (err) {

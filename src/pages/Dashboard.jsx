@@ -31,7 +31,7 @@ export default function Dashboard() {
     setChatHistory((prev) => [...prev, { sender: 'user', text: userInput }]);
     setUserInput('');
     try {
-      const response = await fetch(`http://5.178.113.239:3000/explain?prompt=${encodeURIComponent(userInput)}`);
+      const response = await fetch(`https://etscan.org/explain?prompt=${encodeURIComponent(userInput)}`);
       const data = await response.json();
 
       setChatHistory((prev) => [
@@ -55,7 +55,7 @@ export default function Dashboard() {
   ]);
 
   try {
-    const response = await fetch('http://5.178.113.239:3000/merge-well-formation', {
+    const response = await fetch('https://etscan.org//merge-well-formation', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
