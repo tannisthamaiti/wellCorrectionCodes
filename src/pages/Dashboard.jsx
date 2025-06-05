@@ -57,12 +57,37 @@ export default function Dashboard() {
         </div>
 
         <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
-          <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
+          <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)', textAlign: 'left' }}>
             <h3>ROI Tool</h3>
             <p>Estimate labor savings based on your operations.</p>
-            <button onClick={handleROICalculate} style={{ padding: '0.5rem 1rem', backgroundColor: '#1976d2', color: 'white', border: 'none', borderRadius: '5px' }}>
+            <button
+              onClick={handleROICalculate}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                marginBottom: '1rem'
+              }}
+            >
               Calculate ROI
             </button>
+
+            {showProcessing && (
+              <div>
+                <ProcessingSteps files={[]} onComplete={handleProcessingComplete} />
+              </div>
+            )}
+
+            {processingResult && (
+              <div style={{ marginTop: '1rem', backgroundColor: '#f9f9f9', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd' }}>
+                <div><strong>Total Wells:</strong> {processingResult.wells}</div>
+                <div><strong>Log Types:</strong> {processingResult.logs.join(', ')}</div>
+                <div><strong>Composite Index:</strong> {processingResult.index}</div>
+                <div><strong>Data Source:</strong> {processingResult.source}</div>
+              </div>
+            )}
           </div>
 
           <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
@@ -120,23 +145,6 @@ export default function Dashboard() {
           <button onClick={() => window.open("/digital-twin", "_blank")} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Open Well Visualizer</button>
           <button onClick={handleAskImage} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px' }}>Ask Question About Image</button>
         </div>
-
-        {showProcessing && (
-          <ProcessingSteps
-            files={[]} // optional: mock or real files
-            onComplete={handleProcessingComplete}
-          />
-        )}
-
-        {processingResult && (
-          <div style={{ marginTop: '2rem', backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h3>✅ Final Dataset Summary</h3>
-            <p><strong>Total Wells:</strong> {processingResult.wells}</p>
-            <p><strong>Log Types:</strong> {processingResult.logs.join(', ')}</p>
-            <p><strong>Composite Index:</strong> {processingResult.index}</p>
-            <p><strong>Data Source:</strong> {processingResult.source}</p>
-          </div>
-        )}
       </div>
     </div>
   );
