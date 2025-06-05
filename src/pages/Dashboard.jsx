@@ -4,7 +4,9 @@ import ProcessingSteps from './ProcessingSteps';
 
 function formatTimestamped(message) {
   const now = new Date();
-  return `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${message}`;
+  return `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} - ${message}`;
+})} - ${message}`;
+})} - ${message}`;
 }
 
 export default function Dashboard() {
@@ -70,8 +72,8 @@ export default function Dashboard() {
 
         <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
           <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)', textAlign: 'left' }}>
-            <h3>Data Processing Steps</h3>
-            <p>Click the button to process the uploaded files.</p>
+            <h3>ROI Tool</h3>
+            <p>Estimate labor savings based on your operations.</p>
             <button
               onClick={handleROICalculate}
               style={{
@@ -83,7 +85,7 @@ export default function Dashboard() {
                 marginBottom: '1rem'
               }}
             >
-              Data Processing
+              Calculate ROI
             </button>
 
 
