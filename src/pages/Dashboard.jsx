@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import ProcessingSteps from './ProcessingSteps'; // Adjust path if needed
+import ProcessingSteps from './ProcessingSteps';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [chatHistory, setChatHistory] = useState([]);
   const [userInput, setUserInput] = useState('');
-  const [runProcessing, setRunProcessing] = useState(false);
+  const [showProcessing, setShowProcessing] = useState(false);
+  const [processingResult, setProcessingResult] = useState(null);
   const chatLogRef = useRef(null);
 
   const handleShowMap = () => navigate("/well-map");
@@ -20,34 +21,32 @@ export default function Dashboard() {
 
   const handleSend = async () => {
     if (!userInput.trim()) return;
+
     setChatHistory((prev) => [...prev, { sender: 'user', text: userInput }]);
     setUserInput('');
     try {
       const response = await fetch(`https://c465-5-178-113-239.ngrok-free.app/explain?prompt=${encodeURIComponent(userInput)}`);
       const data = await response.json();
-      setChatHistory((prev) => [...prev, { sender: 'bot', text: data.response || 'No answer returned.' }]);
+
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'bot', text: data.response || 'No answer returned.' },
+      ]);
     } catch (error) {
-      setChatHistory((prev) => [...prev, { sender: 'bot', text: `Error: ${error.message}` }]);
+      setChatHistory((prev) => [
+        ...prev,
+        { sender: 'bot', text: `Error: ${error.message}` },
+      ]);
     }
   };
 
   const handleROICalculate = () => {
-    const wells = parseFloat(document.getElementById('wells').value);
-    const personnel = parseFloat(document.getElementById('personnel').value);
-    const salary = parseFloat(document.getElementById('salary').value);
-    const hours = parseFloat(document.getElementById('hours').value);
-    const savings = parseFloat(document.getElementById('savings').value);
+    setShowProcessing(true);
+  };
 
-    const workHoursPerPerson = 2078.4;
-    const wagePerHour = salary / workHoursPerPerson;
-    const totalManualHours = wells * hours;
-    const hoursSaved = totalManualHours * savings;
-    const laborCostSaved = hoursSaved * wagePerHour;
-
-    document.getElementById('result').innerText =
-      `Estimated Labor Cost Saved: $${laborCostSaved.toFixed(2)}`;
-
-    setRunProcessing(true); // trigger ProcessingSteps
+  const handleProcessingComplete = (finalData) => {
+    setProcessingResult(finalData);
+    setShowProcessing(false);
   };
 
   return (
@@ -61,6 +60,9 @@ export default function Dashboard() {
           <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
             <h3>ROI Tool</h3>
             <p>Estimate labor savings based on your operations.</p>
+            <button onClick={handleROICalculate} style={{ padding: '0.5rem 1rem', backgroundColor: '#1976d2', color: 'white', border: 'none', borderRadius: '5px' }}>
+              Calculate ROI
+            </button>
           </div>
 
           <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
@@ -119,47 +121,20 @@ export default function Dashboard() {
           <button onClick={handleAskImage} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px' }}>Ask Question About Image</button>
         </div>
 
-        <div style={{ background: 'white', padding: '2rem', borderRadius: '10px', marginTop: '2rem', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
-          <h2 style={{ textAlign: 'center' }}>ROI Calculator</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '600px', margin: 'auto' }}>
-            <label>Number of Wells per Year:
-              <input type="number" id="wells" style={{ width: '100%', padding: '0.5rem' }} />
-            </label>
-            <label>Personnel Involved:
-              <input type="number" id="personnel" style={{ width: '100%', padding: '0.5rem' }} />
-            </label>
-            <label>Average Team Salary/Year (USD):
-              <input type="number" id="salary" style={{ width: '100%', padding: '0.5rem' }} />
-            </label>
-            <label>Manual Man-Hours per Well:
-              <input type="number" id="hours" style={{ width: '100%', padding: '0.5rem' }} />
-            </label>
-            <label>% Time Savings (0 to 1):
-              <input type="number" step="0.01" id="savings" style={{ width: '100%', padding: '0.5rem' }} />
-            </label>
-            <button onClick={handleROICalculate} style={{
-              padding: '0.75rem',
-              backgroundColor: '#1976d2',
-              color: 'white',
-              border: 'none',
-              borderRadius: '5px',
-              fontSize: '1rem',
-              cursor: 'pointer'
-            }}>
-              Calculate ROI
-            </button>
-            <div id="result" style={{ marginTop: '1rem', fontWeight: 'bold', textAlign: 'center' }}></div>
-          </div>
-        </div>
+        {showProcessing && (
+          <ProcessingSteps
+            files={[]} // optional: mock or real files
+            onComplete={handleProcessingComplete}
+          />
+        )}
 
-        {runProcessing && (
-          <div style={{ marginTop: '2rem' }}>
-            <ProcessingSteps
-              files={[]} // replace with actual uploaded files if needed
-              onComplete={(finalData) => {
-                console.log("✅ Processing complete", finalData);
-              }}
-            />
+        {processingResult && (
+          <div style={{ marginTop: '2rem', backgroundColor: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <h3>✅ Final Dataset Summary</h3>
+            <p><strong>Total Wells:</strong> {processingResult.wells}</p>
+            <p><strong>Log Types:</strong> {processingResult.logs.join(', ')}</p>
+            <p><strong>Composite Index:</strong> {processingResult.index}</p>
+            <p><strong>Data Source:</strong> {processingResult.source}</p>
           </div>
         )}
       </div>
