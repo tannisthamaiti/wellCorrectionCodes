@@ -67,7 +67,7 @@ export default function Dashboard() {
     }
 
     const data = await response.json();
-
+    console.log(data);
     if (data.status === 'success') {
       setPipelineLogs(prev => [
         ...prev,
