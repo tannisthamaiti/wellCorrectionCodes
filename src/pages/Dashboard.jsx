@@ -4,7 +4,7 @@ import ProcessingSteps from './ProcessingSteps';
 
 function formatTimestamped(message) {
   const now = new Date();
-  return `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${message}`;
+  return `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} - ${message}`;
 }
 
 export default function Dashboard() {
@@ -49,9 +49,9 @@ export default function Dashboard() {
   const handleROICalculate = () => {
     setShowProcessing(true);
     setPipelineLogs([
-      formatTimestamped('📂 Files uploaded to folder.'),
-      formatTimestamped('🔔 Ingestion Agent triggered.'),
-      formatTimestamped('🧠 Extracting Formation Tops...'),
+      formatTimestamped('Files uploaded to folder.'),
+      formatTimestamped('Ingestion Agent triggered.'),
+      formatTimestamped('Extracting Formation Tops...'),
       formatTimestamped("❌ API request failed: Unexpected token '<', <!DOCTYPE ... is not valid JSON")
     ]);
   };
