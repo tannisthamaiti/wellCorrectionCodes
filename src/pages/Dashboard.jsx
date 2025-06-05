@@ -86,11 +86,7 @@ export default function Dashboard() {
               Calculate ROI
             </button>
 
-            {showProcessing && (
-              <div>
-                <ProcessingSteps files={[]} onComplete={handleProcessingComplete} />
-              </div>
-            )}
+
 
             {pipelineLogs.length > 0 && (
               <div style={{ marginTop: '1rem', backgroundColor: '#f9f9f9', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd' }}>
