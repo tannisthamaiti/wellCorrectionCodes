@@ -55,7 +55,7 @@ export default function Dashboard() {
   ]);
 
   try {
-    const response = await fetch('http://5.178.113.239:3000/merge-well-formation', {
+    const response = await fetch('https://etscan.org/merge-well-formation', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
