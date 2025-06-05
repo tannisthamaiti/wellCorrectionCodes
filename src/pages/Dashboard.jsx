@@ -31,7 +31,7 @@ export default function Dashboard() {
     setChatHistory((prev) => [...prev, { sender: 'user', text: userInput }]);
     setUserInput('');
     try {
-      const response = await fetch(`https://c465-5-178-113-239.ngrok-free.app/explain?prompt=${encodeURIComponent(userInput)}`);
+      const response = await fetch(`http://5.178.113.239:3000/explain?prompt=${encodeURIComponent(userInput)}`);
       const data = await response.json();
 
       setChatHistory((prev) => [
