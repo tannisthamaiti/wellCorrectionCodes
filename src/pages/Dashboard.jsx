@@ -194,10 +194,6 @@ export default function Dashboard() {
           <button onClick={() => window.open("/digital-twin", "_blank")} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Open Well Visualizer</button>
           <button onClick={handleAskImage} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px' }}>Ask Question About Image</button>
         </div>
-
-jsx
-Copy
-Edit
 <button
   onClick={async () => {
     setPipelineLogs(prev => [...prev, formatTimestamped('🔍 Testing API endpoint...')]);
