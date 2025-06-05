@@ -83,7 +83,7 @@ export default function Dashboard() {
   } catch (error) {
     setPipelineLogs(prev => [
       ...prev,
-      formatTimestamped(`API request failed: ${error.message}`),
+      formatTimestamped(`API request failed mention error: ${error.message}`),
     ]);
   }
 };
