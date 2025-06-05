@@ -194,34 +194,6 @@ export default function Dashboard() {
           <button onClick={() => window.open("/digital-twin", "_blank")} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Open Well Visualizer</button>
           <button onClick={handleAskImage} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px' }}>Ask Question About Image</button>
         </div>
-<button
-  onClick={async () => {
-    setPipelineLogs(prev => [...prev, formatTimestamped('🔍 Testing API endpoint...')]);
-    try {
-      const res = await fetch('https://c465-5-178-113-239.ngrok-free.app/merge-well-formation');
-      const data = await res.json();
-      setPipelineLogs(prev => [
-        ...prev,
-        formatTimestamped(`✅ Test Success - Status: ${data.status || 'unknown'}`),
-      ]);
-    } catch (err) {
-      setPipelineLogs(prev => [
-        ...prev,
-        formatTimestamped(`❌ Test Failed - ${err.message}`),
-      ]);
-    }
-  }}
-  style={{
-    padding: '0.5rem 1rem',
-    backgroundColor: '#f57c00',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    marginLeft: '1rem'
-  }}
->
-  Test API
-</button>
       </div>
     </div>
   );
