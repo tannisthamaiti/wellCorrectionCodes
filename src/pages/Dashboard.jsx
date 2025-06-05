@@ -72,7 +72,7 @@ export default function Dashboard() {
 
           {/* Chat Assistant */}
           <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
-            <h3>Chat Assistant for Pinn AI</h3>
+            <h3>Chat Assistant for Earthscan</h3>
             <div
               ref={chatLogRef}
             style={{
