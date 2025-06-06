@@ -91,12 +91,12 @@ export default function Dashboard() {
       if (pcaResponse.ok && pcaData.result) {
         setPipelineLogs(prev => [
           ...prev,
-          formatTimestamped(`✅ PCA clustering complete: ${pcaData.result}`),
+          formatTimestamped(`✅ Filtered data complete: ${pcaData.result}`),
         ]);
       } else {
         setPipelineLogs(prev => [
           ...prev,
-          formatTimestamped(`⚠️ PCA clustering failed: ${JSON.stringify(pcaData)}`),
+          formatTimestamped(`⚠️ Filtered data failed: ${JSON.stringify(pcaData)}`),
         ]);
       }
 
