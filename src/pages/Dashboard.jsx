@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 
-
 function formatTimestamped(message) {
   const now = new Date();
   return `${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} - ${message}`;
@@ -14,6 +13,7 @@ export default function Dashboard() {
   const [showProcessing, setShowProcessing] = useState(false);
   const [processingResult, setProcessingResult] = useState(null);
   const [pipelineLogs, setPipelineLogs] = useState([]);
+  const [chatOpen, setChatOpen] = useState(false);
   const chatLogRef = useRef(null);
 
   const handleShowMap = () => navigate("/well-map");
@@ -47,72 +47,68 @@ export default function Dashboard() {
   };
 
   const handleROICalculate = async () => {
-  setShowProcessing(true);
-  setPipelineLogs([
-    formatTimestamped('Files uploaded to folder.'),
-    formatTimestamped('Ingestion Agent triggered.'),
-    formatTimestamped('Extracting Formation Tops...'),
-  ]);
+    setShowProcessing(true);
+    setPipelineLogs([
+      formatTimestamped('Files uploaded to folder.'),
+      formatTimestamped('Ingestion Agent triggered.'),
+      formatTimestamped('Extracting Formation Tops...'),
+    ]);
 
-  try {
-    // Step 1: GET merge-well-formation
-    const response = await fetch('https://etscan.org/merge-well-formation', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data);
-
-    if (data.status === 'success') {
-      setPipelineLogs(prev => [
-        ...prev,
-        formatTimestamped(`✅ Formation Tops extracted. Rows: ${data.rows}`),
-        formatTimestamped(`📁 Output File: ${data.output}`),
-        formatTimestamped('🧠 Triggering PCA Cluster...'),
-      ]);
-
-      // Step 2: POST to /pca-plot
-      const pcaResponse = await fetch('https://etscan.org/sparsity-check', {
-        method: 'POST',
+    try {
+      const response = await fetch('https://etscan.org/merge-well-formation', {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
       });
 
-      const pcaData = await pcaResponse.json();
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
 
-      if (pcaResponse.ok && pcaData.result) {
+      const data = await response.json();
+
+      if (data.status === 'success') {
         setPipelineLogs(prev => [
           ...prev,
-          formatTimestamped(`✅ Filtered data complete: ${pcaData.result}`),
+          formatTimestamped(`✅ Formation Tops extracted. Rows: ${data.rows}`),
+          formatTimestamped(`📁 Output File: ${data.output}`),
+          formatTimestamped('🧠 Triggering PCA Cluster...'),
         ]);
+
+        const pcaResponse = await fetch('https://etscan.org/sparsity-check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const pcaData = await pcaResponse.json();
+
+        if (pcaResponse.ok && pcaData.result) {
+          setPipelineLogs(prev => [
+            ...prev,
+            formatTimestamped(`✅ Filtered data complete: ${pcaData.result}`),
+          ]);
+        } else {
+          setPipelineLogs(prev => [
+            ...prev,
+            formatTimestamped(`⚠️ Filtered data failed: ${JSON.stringify(pcaData)}`),
+          ]);
+        }
       } else {
         setPipelineLogs(prev => [
           ...prev,
-          formatTimestamped(`⚠️ Filtered data failed: ${JSON.stringify(pcaData)}`),
+          formatTimestamped(`API responded with status: ${data.status}`),
         ]);
       }
-
-    } else {
+    } catch (error) {
       setPipelineLogs(prev => [
         ...prev,
-        formatTimestamped(`API responded with status: ${data.status}`),
+        formatTimestamped(`❌ API request failed: ${error.message}`),
       ]);
     }
-  } catch (error) {
-    setPipelineLogs(prev => [
-      ...prev,
-      formatTimestamped(`❌ API request failed: ${error.message}`),
-    ]);
-  }
-};
+  };
 
   const handleProcessingComplete = (finalData) => {
     setProcessingResult(finalData);
@@ -144,8 +140,6 @@ export default function Dashboard() {
               Data Processing
             </button>
 
-
-
             {pipelineLogs.length > 0 && (
               <div style={{ marginTop: '1rem', backgroundColor: '#f9f9f9', padding: '1rem', borderRadius: '6px', border: '1px solid #ddd' }}>
                 <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Pipeline Status</div>
@@ -164,53 +158,6 @@ export default function Dashboard() {
               </div>
             )}
           </div>
-
-          <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)' }}>
-            <h3>Chat Assistant for Earthscan</h3>
-            <div
-              ref={chatLogRef}
-              style={{
-                background: '#fafafa',
-                height: '200px',
-                overflowY: 'auto',
-                padding: '1rem',
-                borderRadius: '6px',
-                border: '1px solid #ccc',
-                marginBottom: '1rem',
-              }}
-            >
-              {chatHistory.length === 0 && (
-                <div>Bot: Hi! Ask me about optimal well placement and reservoir data!</div>
-              )}
-              {chatHistory.map((msg, idx) => (
-                <div key={idx} style={{ color: msg.sender === 'bot' ? '#007b83' : 'black' }}>
-                  <strong>{msg.sender === 'bot' ? 'Bot' : 'You'}:</strong> {msg.text}
-                </div>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input
-                type="text"
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="Ask a question..."
-                style={{ flex: 1, padding: '0.5rem', border: '1px solid #ccc', borderRadius: '5px' }}
-              />
-              <button
-                onClick={handleSend}
-                style={{
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#1976d2',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                }}
-              >
-                Send
-              </button>
-            </div>
-          </div>
         </div>
 
         <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', textAlign: 'center' }}>
@@ -219,6 +166,93 @@ export default function Dashboard() {
           <button onClick={handleShowMap} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Show Map</button>
           <button onClick={() => window.open("/digital-twin", "_blank")} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Open Well Visualizer</button>
           <button onClick={handleAskImage} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px' }}>Ask Question About Image</button>
+        </div>
+
+        {/* Floating Chat Widget */}
+        <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 1000 }}>
+          <button
+            onClick={() => setChatOpen(!chatOpen)}
+            style={{
+              backgroundColor: '#ffc107',
+              color: '#000',
+              padding: '0.6rem 1rem',
+              border: 'none',
+              borderRadius: '20px',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.2)',
+              cursor: 'pointer',
+            }}
+          >
+            {chatOpen ? 'Close Chat' : 'Chat Now!'}
+          </button>
+
+          {chatOpen && (
+            <div
+              style={{
+                marginTop: '0.5rem',
+                width: '320px',
+                background: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '10px',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                padding: '1rem',
+                position: 'relative',
+                bottom: '3.5rem',
+                right: '0.25rem',
+              }}
+            >
+              <div
+                ref={chatLogRef}
+                style={{
+                  background: '#fafafa',
+                  height: '180px',
+                  overflowY: 'auto',
+                  padding: '0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #ccc',
+                  marginBottom: '0.5rem',
+                  fontSize: '0.85rem'
+                }}
+              >
+                {chatHistory.length === 0 && (
+                  <div>Bot: Hi! Ask me about optimal well placement and reservoir data!</div>
+                )}
+                {chatHistory.map((msg, idx) => (
+                  <div key={idx} style={{ color: msg.sender === 'bot' ? '#007b83' : '#333' }}>
+                    <strong>{msg.sender === 'bot' ? 'Bot' : 'You'}:</strong> {msg.text}
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '0.3rem' }}>
+                <input
+                  type="text"
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder="Ask a question..."
+                  style={{
+                    flex: 1,
+                    padding: '0.4rem',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem'
+                  }}
+                />
+                <button
+                  onClick={handleSend}
+                  style={{
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '4px',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
