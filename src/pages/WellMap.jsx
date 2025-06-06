@@ -10,7 +10,7 @@ export default function WellMap() {
   const navigate = useNavigate();
 
   const handleAgentClick = (type) => {
-  if (type === 'Classification') {
+  if (type === 'Cluster') {
     navigate('/classification-agent');
     return;
   }
@@ -63,7 +63,7 @@ export default function WellMap() {
     <div style={{ background: '#eef2f3', padding: '1rem', borderTop: '1px solid #ccc' }}>
       <h3 style={{ textAlign: 'center' }}>AI Agent Recommendation Flow</h3>
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
-        {['Classification', 'Regression', 'Anomaly Detection'].map((agent, index) => (
+        {['Cluster Analysis', 'Classification', 'Anomaly Detection'].map((agent, index) => (
           <div
             key={agent}
             onClick={() => handleAgentClick(agent)}
