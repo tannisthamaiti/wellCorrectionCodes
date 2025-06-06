@@ -55,6 +55,7 @@ export default function Dashboard() {
   ]);
 
   try {
+    // Step 1: GET merge-well-formation
     const response = await fetch('https://etscan.org/merge-well-formation', {
       method: 'GET',
       headers: {
@@ -68,12 +69,37 @@ export default function Dashboard() {
 
     const data = await response.json();
     console.log(data);
+
     if (data.status === 'success') {
       setPipelineLogs(prev => [
         ...prev,
         formatTimestamped(`✅ Formation Tops extracted. Rows: ${data.rows}`),
         formatTimestamped(`📁 Output File: ${data.output}`),
+        formatTimestamped('🧠 Triggering PCA Cluster...'),
       ]);
+
+      // Step 2: POST to /pca-plot
+      const pcaResponse = await fetch('https://etscan.org/sparsity-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const pcaData = await pcaResponse.json();
+
+      if (pcaResponse.ok && pcaData.result) {
+        setPipelineLogs(prev => [
+          ...prev,
+          formatTimestamped(`✅ PCA clustering complete: ${pcaData.result}`),
+        ]);
+      } else {
+        setPipelineLogs(prev => [
+          ...prev,
+          formatTimestamped(`⚠️ PCA clustering failed: ${JSON.stringify(pcaData)}`),
+        ]);
+      }
+
     } else {
       setPipelineLogs(prev => [
         ...prev,
@@ -83,7 +109,7 @@ export default function Dashboard() {
   } catch (error) {
     setPipelineLogs(prev => [
       ...prev,
-      formatTimestamped(`API request failed mention error: ${error.message}`),
+      formatTimestamped(`❌ API request failed: ${error.message}`),
     ]);
   }
 };
