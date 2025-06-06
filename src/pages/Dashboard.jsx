@@ -200,6 +200,21 @@ export default function Dashboard() {
                 right: '0.25rem',
               }}
             >
+              {/* Close Icon */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '12px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  fontSize: '1.2rem'
+                }}
+                onClick={() => setChatOpen(false)}
+              >
+                &times;
+              </div>
+
               <div
                 ref={chatLogRef}
                 style={{
