@@ -19,13 +19,13 @@ export default function ClassificationAgent() {
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h2 style={{ textAlign: 'center' }}>Classification Agent Results</h2>
+      <h2 style={{ textAlign: 'center' }}>Cluster Analysis</h2>
 
       <div style={{ display: 'flex', gap: '2rem', marginTop: '2rem', alignItems: 'flex-start' }}>
         {/* Main Classification Scatter Image */}
         <div style={{ flex: 1 }}>
           <img
-            src={summaryImage}
+            src= "https://etscan.org/show-image"
             alt="Classification Overview"
             style={{
               width: '100%',
@@ -80,3 +80,4 @@ export default function ClassificationAgent() {
     </div>
   );
 }
+
