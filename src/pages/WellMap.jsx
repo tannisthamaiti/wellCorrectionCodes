@@ -10,7 +10,7 @@ export default function WellMap() {
   const navigate = useNavigate();
 
   const handleAgentClick = (type) => {
-  if (type === 'Cluster') {
+  if (type === 'Cluster Analysis') {
     navigate('/classification-agent');
     return;
   }

@@ -46,69 +46,94 @@ export default function Dashboard() {
     }
   };
 
-  const handleROICalculate = async () => {
-    setShowProcessing(true);
-    setPipelineLogs([
-      formatTimestamped('Files uploaded to folder.'),
-      formatTimestamped('Ingestion Agent triggered.'),
-      formatTimestamped('Extracting Formation Tops...'),
-    ]);
+ const handleROICalculate = async () => { 
+  setShowProcessing(true);
+  setPipelineLogs([
+    formatTimestamped('Files uploaded to folder.'),
+    formatTimestamped('Ingestion Agent triggered.'),
+    formatTimestamped('Extracting Formation Tops...'),
+  ]);
 
-    try {
-      const response = await fetch('https://etscan.org/merge-well-formation', {
-        method: 'GET',
+  try {
+    const response = await fetch('https://etscan.org/merge-well-formation', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      setPipelineLogs(prev => [
+        ...prev,
+        formatTimestamped(`✅ Formation Tops extracted. Rows: ${data.rows}`),
+        formatTimestamped(`📁 Output File: ${data.output}`),
+        formatTimestamped('🧠 Triggering PCA Cluster...'),
+      ]);
+
+      const pcaResponse = await fetch('https://etscan.org/sparsity-check', {
+        method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          'Content-Type': 'application/json',
         },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+      const pcaData = await pcaResponse.json();
 
-      const data = await response.json();
-
-      if (data.status === 'success') {
+      if (pcaResponse.ok && pcaData.result) {
         setPipelineLogs(prev => [
           ...prev,
-          formatTimestamped(`✅ Formation Tops extracted. Rows: ${data.rows}`),
-          formatTimestamped(`📁 Output File: ${data.output}`),
-          formatTimestamped('🧠 Triggering PCA Cluster...'),
+          formatTimestamped(`✅ Filtered data complete: ${pcaData.result}`),
+          formatTimestamped('📊 Generating PCA plot...'),
         ]);
 
-        const pcaResponse = await fetch('https://etscan.org/sparsity-check', {
+        // NEW PCA Plot Request
+        const plotResponse = await fetch('https://etscan.org/pca-plot/', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
         });
 
-        const pcaData = await pcaResponse.json();
+        const plotData = await plotResponse.json();
 
-        if (pcaResponse.ok && pcaData.result) {
+        if (plotResponse.ok && plotData.status === 'success') {
           setPipelineLogs(prev => [
             ...prev,
-            formatTimestamped(`✅ Filtered data complete: ${pcaData.result}`),
+            formatTimestamped(`✅ ${plotData.message}`),
+            formatTimestamped(`🖼️ Plot Path: ${plotData.plot_path}`),
           ]);
         } else {
           setPipelineLogs(prev => [
             ...prev,
-            formatTimestamped(`⚠️ Filtered data failed: ${JSON.stringify(pcaData)}`),
+            formatTimestamped(`⚠️ PCA plot generation failed: ${JSON.stringify(plotData)}`),
           ]);
         }
+
       } else {
         setPipelineLogs(prev => [
           ...prev,
-          formatTimestamped(`API responded with status: ${data.status}`),
+          formatTimestamped(`⚠️ Filtered data failed: ${JSON.stringify(pcaData)}`),
         ]);
       }
-    } catch (error) {
+    } else {
       setPipelineLogs(prev => [
         ...prev,
-        formatTimestamped(`❌ API request failed: ${error.message}`),
+        formatTimestamped(`API responded with status: ${data.status}`),
       ]);
     }
-  };
+  } catch (error) {
+    setPipelineLogs(prev => [
+      ...prev,
+      formatTimestamped(`❌ API request failed: ${error.message}`),
+    ]);
+  }
+};
 
   const handleProcessingComplete = (finalData) => {
     setProcessingResult(finalData);
@@ -124,8 +149,7 @@ export default function Dashboard() {
 
         <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem' }}>
           <div style={{ flex: 1, background: 'white', padding: '1rem', borderRadius: '10px', boxShadow: '0 0 5px rgba(0,0,0,0.1)', textAlign: 'left' }}>
-            <h3>Data Processing Steps</h3>
-            <p>Click the button to process the uploaded files.</p>
+            <h3>Build Logs</h3>
             <button
               onClick={handleROICalculate}
               style={{
@@ -138,6 +162,19 @@ export default function Dashboard() {
               }}
             >
               Data Processing
+            </button>
+            <button
+              onClick={handleROICalculate}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#1976d2',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                marginBottom: '1rem'
+              }}
+            >
+              Model Training
             </button>
 
             {pipelineLogs.length > 0 && (
@@ -163,7 +200,7 @@ export default function Dashboard() {
         <div style={{ background: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', textAlign: 'center' }}>
           <h3>Data Inspection and Inference</h3>
           <p>Your files are being processed and analyzed.</p>
-          <button onClick={handleShowMap} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>ES Inference</button>
+          <button onClick={handleShowMap} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Pinn Inference</button>
           <button onClick={() => window.open("/digital-twin", "_blank")} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#1e88e5', color: 'white', border: 'none', borderRadius: '4px' }}>Production Results</button>
           <button onClick={handleAskImage} style={{ margin: '0.5rem', padding: '0.5rem 1rem', minWidth: '200px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '4px' }}>Vug Analysis</button>
         </div>
